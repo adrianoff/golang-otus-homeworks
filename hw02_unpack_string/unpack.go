@@ -3,21 +3,20 @@ package hw02unpackstring
 import (
 	"errors"
 	"strconv"
+	"strings"
 	"unicode"
 )
 
 var ErrInvalidString = errors.New("invalid string")
 
-func repeatChar(char rune, count int) string {
-	var repeated string
+func repeatChar(builder *strings.Builder, char rune, count int) {
 	for i := 0; i < count; i++ {
-		repeated += string(char)
+		builder.WriteRune(char)
 	}
-	return repeated
 }
 
 func Unpack(input string) (string, error) {
-	result := ""
+	var builder strings.Builder
 	runes := []rune(input)
 
 	for i := 0; i < len(runes); i++ {
@@ -38,11 +37,11 @@ func Unpack(input string) (string, error) {
 			}
 
 			count, _ := strconv.Atoi(string(curRune))
-			result += repeatChar(prevRune, count)
+			repeatChar(&builder, prevRune, count)
 		} else if !unicode.IsDigit(nextRune) {
-			result += string(curRune)
+			builder.WriteRune(curRune)
 		}
 	}
 
-	return result, nil
+	return builder.String(), nil
 }
