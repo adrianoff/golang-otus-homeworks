@@ -50,7 +50,44 @@ func TestCache(t *testing.T) {
 	})
 
 	t.Run("purge logic", func(t *testing.T) {
-		// Write me
+		c := NewCache(3)
+		c.Set("key1", 101)
+		c.Set("key2", 102)
+		c.Set("key3", 103)
+		c.Set("key4", 104)
+
+		_, key2IsOk := c.Get("key2")
+		require.True(t, key2IsOk)
+		_, key3IsOk := c.Get("key3")
+		require.True(t, key3IsOk)
+		_, key4IsOk := c.Get("key4")
+		require.True(t, key4IsOk)
+		_, key1IsOk := c.Get("key1")
+		require.False(t, key1IsOk)
+	})
+
+	t.Run("purge old elements logic", func(t *testing.T) {
+		c := NewCache(3)
+		c.Set("key1", 101)
+		c.Set("key2", 102)
+		c.Set("key3", 103)
+
+		c.Get("key3")
+		c.Get("key3")
+		c.Get("key1")
+		c.Get("key2")
+		c.Set("key1", 1001)
+
+		c.Set("key4", 104)
+
+		_, key2IsOk := c.Get("key2")
+		require.True(t, key2IsOk)
+		_, key1IsOk := c.Get("key1")
+		require.True(t, key1IsOk)
+		_, key4IsOk := c.Get("key4")
+		require.True(t, key4IsOk)
+		_, key3IsOk := c.Get("key3")
+		require.False(t, key3IsOk)
 	})
 }
 
