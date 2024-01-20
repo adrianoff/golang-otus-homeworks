@@ -8,6 +8,7 @@ import (
 )
 
 var ErrErrorsLimitExceeded = errors.New("errors limit exceeded")
+
 var ErrNoWorkersProvided = errors.New("no workers provided")
 
 type Task func() error
