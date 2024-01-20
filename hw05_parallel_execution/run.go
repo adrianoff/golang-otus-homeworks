@@ -2,7 +2,6 @@ package hw05parallelexecution
 
 import (
 	"errors"
-	"fmt"
 	"sync"
 	"sync/atomic"
 )
@@ -22,12 +21,7 @@ func Run(tasks []Task, n, m int) error {
 		return nil
 	}
 
-	tasksChannel := make(chan Task, len(tasks))
-
-	for _, t := range tasks { // Add tasks to channel
-		tasksChannel <- t
-	}
-	close(tasksChannel) // Close channel. There will be no more tasks.
+	tasksChannel := make(chan Task)
 
 	var errorsCount uint32 // Errors count. Simple type used for thread safe atomic.
 
@@ -42,11 +36,15 @@ func Run(tasks []Task, n, m int) error {
 				}
 				if err := t(); err != nil {
 					atomic.AddUint32(&errorsCount, 1) // Increase error count
-					fmt.Println(err)
 				}
 			}
 		}()
 	}
+
+	for _, t := range tasks { // Add tasks to channel
+		tasksChannel <- t
+	}
+	close(tasksChannel) // Close channel. There will be no more tasks.
 
 	wg.Wait()
 
