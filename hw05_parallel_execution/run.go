@@ -26,11 +26,26 @@ func Run(tasks []Task, n, m int) error {
 	var errorsCount uint32 // Errors count. Simple type used for thread safe atomic.
 
 	wg := sync.WaitGroup{} // Start wait group
+
+	go func() {
+		defer close(tasksChannel) // Close channel. There will be no more tasks.
+		for _, t := range tasks { // Add task to channel
+			if int(atomic.LoadUint32(&errorsCount)) >= m { // Check errors count
+				return
+			}
+			tasksChannel <- t
+		}
+	}()
+
 	for i := 0; i < n; i++ {
 		wg.Add(1) // Add wait for current worker
 		go func() {
 			defer wg.Done()
-			for t := range tasksChannel { // fetch task from channel
+			for {
+				t, ok := <-tasksChannel
+				if !ok {
+					break
+				}
 				if int(atomic.LoadUint32(&errorsCount)) >= m { // Check errors count
 					return
 				}
@@ -40,11 +55,6 @@ func Run(tasks []Task, n, m int) error {
 			}
 		}()
 	}
-
-	for _, t := range tasks { // Add tasks to channel
-		tasksChannel <- t
-	}
-	close(tasksChannel) // Close channel. There will be no more tasks.
 
 	wg.Wait()
 
