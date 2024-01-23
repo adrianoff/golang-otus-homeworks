@@ -41,14 +41,7 @@ func Run(tasks []Task, n, m int) error {
 		wg.Add(1) // Add wait for current worker
 		go func() {
 			defer wg.Done()
-			for {
-				t, ok := <-tasksChannel
-				if !ok {
-					break
-				}
-				if int(atomic.LoadUint32(&errorsCount)) >= m { // Check errors count
-					return
-				}
+			for t := range tasksChannel { // Iterate throw tasksChannel
 				if err := t(); err != nil {
 					atomic.AddUint32(&errorsCount, 1) // Increase error count
 				}
