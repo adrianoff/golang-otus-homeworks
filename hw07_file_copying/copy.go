@@ -3,10 +3,11 @@ package main
 import (
 	"errors"
 	"fmt"
-	"github.com/cheggaaa/pb/v3"
 	"io"
 	"io/fs"
 	"os"
+
+	"github.com/cheggaaa/pb/v3"
 )
 
 var (
