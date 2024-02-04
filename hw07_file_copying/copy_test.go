@@ -48,7 +48,7 @@ func TestCopy(t *testing.T) {
 func TestErrors(t *testing.T) {
 	t.Run("no file", func(t *testing.T) {
 		err := Copy("file_not_exists.txt", "destination.txt", 0, 0)
-		require.EqualErrorf(t, err, "open source file error: open file_not_exists.txt: no such file or directory", "")
+		require.EqualErrorf(t, err, "open source file error", "")
 	})
 
 	t.Run("offset and limit should be positive integers", func(t *testing.T) {
@@ -59,6 +59,11 @@ func TestErrors(t *testing.T) {
 	t.Run("unsupported file", func(t *testing.T) {
 		err := Copy("/dev/urandom", "some_destination.txt", 0, 0)
 		require.EqualErrorf(t, err, "unsupported file", "")
+	})
+
+	t.Run("directory not supported", func(t *testing.T) {
+		err := Copy("/tmp", "some_destination.txt", 0, 0)
+		require.EqualErrorf(t, err, "directory not supported", "")
 	})
 
 	t.Run("same file", func(t *testing.T) {

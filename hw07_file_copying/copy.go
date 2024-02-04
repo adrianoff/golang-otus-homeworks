@@ -2,7 +2,6 @@ package main
 
 import (
 	"errors"
-	"fmt"
 	"io"
 	"io/fs"
 	"os"
@@ -12,9 +11,14 @@ import (
 
 var (
 	ErrUnsupportedFile       = errors.New("unsupported file")
+	ErrDirectoryNotSupported = errors.New("directory not supported")
 	ErrOffsetExceedsFileSize = errors.New("offset exceeds file size")
 	ErrSameFiles             = errors.New("source and destination files are the same")
 	ErrWrongParams           = errors.New("offset and limit should be positive integers")
+	ErrOpenSrcFile           = errors.New("open source file error")
+	ErrRetrievingSrcFileInfo = errors.New("retrieving source file info error")
+	ErrRetrievingDstFileInfo = errors.New("retrieving destination file info error")
+	ErrOpenDstFileError      = errors.New("open destination file error")
 )
 
 func Copy(sourcePath, destinationPath string, offset, limit int64) error {
@@ -29,16 +33,21 @@ func Copy(sourcePath, destinationPath string, offset, limit int64) error {
 
 	// Open source file
 	if sourceFile, err = os.Open(sourcePath); err != nil {
-		return fmt.Errorf("open source file error: %w", err)
+		return ErrOpenSrcFile
 	}
 	defer sourceFile.Close()
 
-	// Get source file info and check file is not device
+	// Get source file info
 	if sourceFileInfo, err = sourceFile.Stat(); err != nil {
-		return fmt.Errorf("retrieving source file info error: %w", err)
+		return ErrRetrievingSrcFileInfo
 	}
-	if isSpecificMode(sourceFileInfo.Mode(), fs.ModeDevice) {
+	// check file is not device
+	if sourceFileInfo.Mode()&fs.ModeDevice == fs.ModeDevice {
 		return ErrUnsupportedFile
+	}
+	// check file is not directory
+	if sourceFileInfo.IsDir() {
+		return ErrDirectoryNotSupported
 	}
 
 	// Check offset > filesize
@@ -49,13 +58,13 @@ func Copy(sourcePath, destinationPath string, offset, limit int64) error {
 
 	// Open destination file
 	if destinationFile, err = os.Create(destinationPath); err != nil {
-		return fmt.Errorf("open destination file error: %w", err)
+		return ErrOpenDstFileError
 	}
 	defer destinationFile.Close()
 
 	// Check destination file is not the same as source file
 	if destinationFileInfo, err = destinationFile.Stat(); err != nil {
-		return fmt.Errorf("retrieving destination file info error: %w", err)
+		return ErrRetrievingDstFileInfo
 	}
 	if os.SameFile(sourceFileInfo, destinationFileInfo) {
 		return ErrSameFiles
@@ -81,14 +90,14 @@ func Copy(sourcePath, destinationPath string, offset, limit int64) error {
 
 	_, err = io.Copy(writer, barReader)
 	if err != nil {
+		errRemove := os.Remove(destinationPath)
+		if errRemove != nil {
+			return errRemove
+		}
 		return err
 	}
 
 	bar.Finish()
 
 	return nil
-}
-
-func isSpecificMode(mode, targetMode os.FileMode) bool {
-	return mode&targetMode == targetMode
 }
