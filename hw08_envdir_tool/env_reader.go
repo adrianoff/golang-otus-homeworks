@@ -1,9 +1,10 @@
 package main
 
 import (
-	"fmt"
+	"bufio"
 	"log"
 	"os"
+	"strings"
 )
 
 type Environment map[string]EnvValue
@@ -19,12 +20,53 @@ type EnvValue struct {
 func ReadDir(dir string) (Environment, error) {
 	entries, err := os.ReadDir(dir)
 	if err != nil {
+		return nil, err
+	}
+
+	environment := make(Environment)
+
+	for _, e := range entries {
+		if strings.Contains(e.Name(), "=") {
+			continue
+		}
+		line := readLine(dir + "/" + e.Name())
+		needToRemove := false
+		if len(line) == 0 {
+			needToRemove = true
+		} else {
+			line = strings.ReplaceAll(line, string([]byte{0x00}), "\n")
+			line = strings.TrimRight(line, " \t")
+		}
+
+		environment[e.Name()] = EnvValue{
+			Value:      line,
+			NeedRemove: needToRemove,
+		}
+	}
+
+	return environment, nil
+}
+
+func readLine(filename string) string {
+	file, err := os.Open(filename)
+	if err != nil {
 		log.Fatal(err)
 	}
 
-	for _, e := range entries {
-		fmt.Println(e.Name())
+	fileInfo, err := file.Stat()
+	if err != nil {
+		file.Close()
+		log.Fatal(err)
+	}
+	if fileInfo.Size() == 0 {
+		return ""
 	}
 
-	return nil, nil
+	scanner := bufio.NewScanner(file)
+	scanner.Scan()
+
+	line := scanner.Text()
+	file.Close()
+
+	return line
 }

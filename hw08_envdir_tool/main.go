@@ -1,19 +1,21 @@
 package main
 
 import (
-	"fmt"
+	"log"
 	"os"
 )
 
 func main() {
-	var path, command string
+	if len(os.Args) < 3 {
+		log.Fatal("too few arguments")
+	}
+	path := os.Args[1]
 
-	path = os.Args[1]
-	command = os.Args[2]
-	others := os.Args[3:]
+	environment, err := ReadDir(path)
+	if err != nil {
+		log.Fatal("error reading dir")
+	}
+	returnCode := RunCmd(os.Args[2:], environment)
 
-	_, _ = ReadDir(path)
-	fmt.Println(path, command, others)
-
-	//cmd := exec.Command("git", "commit", "-am", "fix")
+	os.Exit(returnCode)
 }
