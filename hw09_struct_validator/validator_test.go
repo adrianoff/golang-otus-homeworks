@@ -3,9 +3,9 @@ package hw09structvalidator
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/adrianoff/golang-otus-homework/hw09_struct_validator/validators"
 	"testing"
 
+	"github.com/adrianoff/golang-otus-homework/hw09_struct_validator/validators"
 	"github.com/stretchr/testify/require"
 )
 

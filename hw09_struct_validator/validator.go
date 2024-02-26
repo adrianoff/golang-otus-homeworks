@@ -2,10 +2,11 @@ package hw09structvalidator
 
 import (
 	"fmt"
-	"github.com/adrianoff/golang-otus-homework/hw09_struct_validator/validators"
 	"log"
 	"reflect"
 	"strings"
+
+	"github.com/adrianoff/golang-otus-homework/hw09_struct_validator/validators"
 )
 
 type ValidationError struct {
