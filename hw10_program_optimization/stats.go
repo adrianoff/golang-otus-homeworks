@@ -2,6 +2,7 @@ package hw10programoptimization
 
 import (
 	"bufio"
+	"errors"
 	"io"
 	"strings"
 )
@@ -19,8 +20,13 @@ func GetDomainStat(r io.Reader, domain string) (DomainStat, error) {
 		}
 
 		if strings.HasSuffix(user.Email, "."+strings.ToLower(domain)) {
-			split := strings.ToLower(strings.SplitN(user.Email, "@", 2)[1])
-			result[split]++
+			splitN := strings.SplitN(user.Email, "@", 2)
+			if len(splitN) < 2 {
+				return nil, errors.New("invalid email: " + user.Email)
+			}
+
+			curDomain := strings.ToLower(splitN[1])
+			result[curDomain]++
 		}
 	}
 	return result, nil
