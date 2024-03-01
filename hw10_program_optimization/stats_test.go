@@ -41,6 +41,10 @@ func TestGetDomainStat(t *testing.T) {
 			  {"Id":2,"Name":"Jesse Vasquez","Username":"qRichardson","Email":"mLynch@browsecat.com","Phone":"9-373-949-64-00","Password":"SiZLeNSGn","Address":"Fulton Hill 80"}
 			  {"Id":3,"Name":"Clarence Olson","Username":"RachelAdams","Email":"aliquid2","Phone":"988-48-97","Password":"71kuz3gA5w","Address":"Monterey Park 39"}`
 
+	data8 := `{"Id":1,"Name":"Howard Mendoza","Username":"0Oliver","Email":"aliquid","Phone":"6-866-899-36-79","Password":"InAQJvsq","Address":"Blackbird Place 25"}
+			  {"Id":2,"Name":"Jesse Vasquez","Username":"qRichardson","Email":"mLynch@browsecat.com","Phone":"9-373-949-64-00","Password":"SiZLeNSGn","Address":"Fulton Hill 80"}
+			  {"Id":3,"Name":"Clarence Olson","Username":"RachelAdams","Email":"aliquid2.com","Phone":"988-48-97","Password":"71kuz3gA5w","Address":"Monterey Park 39"}`
+
 	t.Run("find 'com'", func(t *testing.T) {
 		result, err := GetDomainStat(bytes.NewBufferString(data1), "com")
 		require.NoError(t, err)
@@ -118,5 +122,11 @@ func TestGetDomainStat(t *testing.T) {
 		require.Equal(t, DomainStat{
 			"browsecat.com": 1,
 		}, result)
+	})
+
+	t.Run("getting error invalid email", func(t *testing.T) {
+		_, err := GetDomainStat(bytes.NewBufferString(data8), "com")
+		require.Error(t, err)
+		require.Equal(t, "invalid email: aliquid2.com", err.Error())
 	})
 }
