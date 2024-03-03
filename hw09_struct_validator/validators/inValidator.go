@@ -7,7 +7,6 @@ import (
 	"strings"
 )
 
-//nolint:exhaustive
 func InValidator(inValues string, v reflect.Value) error {
 	IntKinds := []reflect.Kind{reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64}
 	switch {
