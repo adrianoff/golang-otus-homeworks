@@ -19,7 +19,6 @@ func LenValidator(requireLen string, v reflect.Value) error {
 			return ErrInvalidLen
 		}
 	case v.Kind() == reflect.Slice && v.Len() > 0 && v.Index(0).Kind() == reflect.String:
-
 		for _, val := range v.Interface().([]string) {
 			if len(val) != maxLen {
 				return ErrInvalidLen
