@@ -3,6 +3,7 @@ package validators
 import (
 	"fmt"
 	"reflect"
+	"slices"
 	"strconv"
 )
 
@@ -13,12 +14,13 @@ func MinValidator(requireMax string, v reflect.Value) error {
 		return fmt.Errorf("invalid Max argument")
 	}
 
-	switch v.Kind() {
-	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+	IntKinds := []reflect.Kind{reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64}
+	switch {
+	case slices.Contains(IntKinds, v.Kind()):
 		if v.Int() < int64(requireMaxVal) {
 			return ErrInvalidMin
 		}
-	case reflect.Slice:
+	case v.Kind() == reflect.Slice && v.Len() > 0 && slices.Contains(IntKinds, v.Index(0).Kind()):
 		for _, val := range v.Interface().([]int) {
 			if val < requireMaxVal {
 				return ErrInvalidMin

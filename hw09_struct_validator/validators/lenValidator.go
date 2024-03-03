@@ -13,12 +13,13 @@ func LenValidator(requireLen string, v reflect.Value) error {
 		return fmt.Errorf("invalid len argument")
 	}
 
-	switch v.Kind() {
-	case reflect.String:
+	switch {
+	case v.Kind() == reflect.String:
 		if len(v.String()) != maxLen {
 			return ErrInvalidLen
 		}
-	case reflect.Slice:
+	case v.Kind() == reflect.Slice && v.Len() > 0 && v.Index(0).Kind() == reflect.String:
+
 		for _, val := range v.Interface().([]string) {
 			if len(val) != maxLen {
 				return ErrInvalidLen
