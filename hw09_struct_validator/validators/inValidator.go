@@ -2,9 +2,10 @@ package validators
 
 import (
 	"reflect"
-	"slices"
 	"strconv"
 	"strings"
+
+	"golang.org/x/exp/slices"
 )
 
 func InValidator(inValues string, v reflect.Value) error {

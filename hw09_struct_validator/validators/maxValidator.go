@@ -3,8 +3,9 @@ package validators
 import (
 	"fmt"
 	"reflect"
-	"slices"
 	"strconv"
+
+	"golang.org/x/exp/slices"
 )
 
 func MaxValidator(requireMax string, v reflect.Value) error {
