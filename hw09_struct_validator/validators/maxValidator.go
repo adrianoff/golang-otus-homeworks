@@ -7,7 +7,6 @@ import (
 	"strconv"
 )
 
-// nolint
 func MaxValidator(requireMax string, v reflect.Value) error {
 	requireMaxVal, err := strconv.Atoi(requireMax)
 	if err != nil {
