@@ -22,8 +22,8 @@ func MaxValidator(requireMax string, v reflect.Value) error {
 			return ErrInvalidMax
 		}
 	case v.Kind() == reflect.Slice && v.Len() > 0 && slices.Contains(IntKinds, v.Index(0).Kind()):
-		for _, val := range v.Interface().([]int) {
-			if val > requireMaxVal {
+		for _, val := range v.Interface().([]int64) {
+			if val > int64(requireMaxVal) {
 				return ErrInvalidMax
 			}
 		}

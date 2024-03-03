@@ -2,21 +2,23 @@ package validators
 
 import (
 	"reflect"
+	"slices"
 	"strconv"
 	"strings"
 )
 
 //nolint:exhaustive
 func InValidator(inValues string, v reflect.Value) error {
-	switch v.Kind() {
-	case reflect.String:
+	IntKinds := []reflect.Kind{reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64}
+	switch {
+	case v.Kind() == reflect.String:
 		for _, val := range strings.Split(inValues, ",") {
 			if v.String() == val {
 				return nil
 			}
 		}
 
-	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+	case slices.Contains(IntKinds, v.Kind()):
 		inVal := strings.Split(inValues, ",")
 
 		for _, val := range inVal {
@@ -29,6 +31,22 @@ func InValidator(inValues string, v reflect.Value) error {
 				return nil
 			}
 		}
+	case v.Kind() == reflect.Slice && v.Len() > 0 && v.Index(0).Kind() == reflect.String:
+		inVal := strings.Split(inValues, ",")
+		for _, val := range v.Interface().([]string) {
+			if !slices.Contains(inVal, val) {
+				return ErrInvalidIn
+			}
+		}
+		return nil
+	case v.Kind() == reflect.Slice && v.Len() > 0 && slices.Contains(IntKinds, v.Index(0).Kind()):
+		inVal := strings.Split(inValues, ",")
+		for _, val := range v.Interface().([]int64) {
+			if !slices.Contains(inVal, strconv.FormatInt(val, 10)) {
+				return ErrInvalidIn
+			}
+		}
+		return nil
 
 	default:
 		return ErrInvalidType
