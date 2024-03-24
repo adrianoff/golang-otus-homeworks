@@ -2,25 +2,28 @@ package app
 
 import (
 	"context"
+
+	"github.com/adrianoff/golang-otus-homeworks/hw12_13_14_15_calendar/internal/logger"
+	"github.com/adrianoff/golang-otus-homeworks/hw12_13_14_15_calendar/internal/storage"
+	"github.com/adrianoff/golang-otus-homeworks/hw12_13_14_15_calendar/internal/storage/entities"
 )
 
-type App struct { // TODO
+type App struct {
+	storage storage.Storage
+	logger  logger.Logger
 }
 
-type Logger interface { // TODO
+type Application interface {
+	CreateEvent(ctx context.Context, title string) (uint64, error)
 }
 
-type Storage interface { // TODO
+func New(logger logger.Logger, storage storage.Storage) Application {
+	return &App{
+		storage: storage,
+		logger:  logger,
+	}
 }
 
-func New(logger Logger, storage Storage) *App {
-	return &App{}
+func (app *App) CreateEvent(ctx context.Context, title string) (uint64, error) {
+	return app.storage.Create(ctx, entities.Event{ID: 0, Title: title})
 }
-
-func (a *App) CreateEvent(ctx context.Context, id, title string) error {
-	// TODO
-	return nil
-	// return a.storage.CreateEvent(storage.Event{ID: id, Title: title})
-}
-
-// TODO

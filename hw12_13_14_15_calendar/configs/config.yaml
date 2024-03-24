@@ -1,0 +1,9 @@
+logger:
+  level: "INFO"
+
+database:
+  connectStr: "postgres://otus:otus@postgres:5432/calendar"
+  storage: "memory"
+
+httpServer:
+  address: "0.0.0.0:65000"
