@@ -1,1 +1,29 @@
 version: "3"
+services:
+  pg:
+    image: postgres:latest
+    container_name: postgres 
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=calendar
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    ports:
+      - 5432:5432
+    volumes:
+      - ./sql:/docker-entrypoint-initdb.d   
+
+  calendar:
+    build:
+      context: ..
+      dockerfile: ./build/calendar.dockerfile
+    container_name: calendar
+    depends_on:
+      - pg
+    ports:
+      - 65000:65000
