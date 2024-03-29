@@ -33,7 +33,9 @@ func (s *Server) Start(_ context.Context) error {
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 10 * time.Second,
 	}
-	s.httpServer.ListenAndServe()
+	if err := s.httpServer.ListenAndServe(); err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -54,10 +56,14 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	case "/":
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode("hello world")
+		if err := json.NewEncoder(w).Encode("hello world"); err != nil {
+			http.Error(w, "Encode error", 500)
+		}
 	case "/create/":
 		// Just for testing
-		s.create(w, r)
+		if err := s.create(w, r); err != nil {
+			http.Error(w, "Create error", 500)
+		}
 	default:
 		http.NotFound(w, r)
 	}
@@ -70,7 +76,10 @@ func (s *Server) create(w http.ResponseWriter, _ *http.Request) error { //nolint
 	id, _ := s.app.CreateEvent(ctx, "TEST")
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(id)
+
+	if err := json.NewEncoder(w).Encode(id); err != nil {
+		http.Error(w, "Encode error", 500)
+	}
 
 	return nil
 }

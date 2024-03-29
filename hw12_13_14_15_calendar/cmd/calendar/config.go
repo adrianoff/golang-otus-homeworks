@@ -33,6 +33,8 @@ func NewConfig(configFile string) Config {
 		log.Fatal("error reading the configuration file")
 	}
 
-	yaml.Unmarshal(yamlFile, &config)
+	if err := yaml.Unmarshal(yamlFile, &config); err != nil {
+		log.Fatal("error unmarshaling the configuration file")
+	}
 	return config
 }
