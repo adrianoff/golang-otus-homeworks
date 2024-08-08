@@ -1,20 +1,31 @@
 package logger
 
-import "fmt"
+import (
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
+)
 
-type Logger struct { // TODO
+type Logger interface {
+	Error(args ...interface{})
+	Debug(args ...interface{})
+	Info(args ...interface{})
 }
 
-func New(level string) *Logger {
-	return &Logger{}
+func New(level string, prefix string) Logger {
+	parseLevel, err := zapcore.ParseLevel(level)
+	if err != nil {
+		return nil
+	}
+	logConfig := zap.Config{
+		Level:             zap.NewAtomicLevelAt(parseLevel),
+		DisableCaller:     true,
+		Development:       true,
+		DisableStacktrace: true,
+		Encoding:          "console",
+		OutputPaths:       []string{"stdout"},
+		ErrorOutputPaths:  []string{"stderr"},
+		EncoderConfig:     zap.NewDevelopmentEncoderConfig(),
+	}
+	logger := zap.Must(logConfig.Build()).Sugar().Named(prefix)
+	return logger
 }
-
-func (l Logger) Info(msg string) {
-	fmt.Println(msg)
-}
-
-func (l Logger) Error(msg string) {
-	// TODO
-}
-
-// TODO

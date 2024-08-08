@@ -1,0 +1,16 @@
+Main:
+  files:
+  - $all
+  - "!$test"
+  allow:
+  - $all
+  deny:
+    reflect: Please don't use reflect package
+Test:
+  files:
+  - $test
+  allow:
+  - $all
+  - github.com/stretchr/testify
+  deny:
+    reflect: Please don't use reflect package

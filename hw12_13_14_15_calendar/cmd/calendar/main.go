@@ -8,16 +8,16 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/fixme_my_friend/hw12_13_14_15_calendar/internal/app"
-	"github.com/fixme_my_friend/hw12_13_14_15_calendar/internal/logger"
-	internalhttp "github.com/fixme_my_friend/hw12_13_14_15_calendar/internal/server/http"
-	memorystorage "github.com/fixme_my_friend/hw12_13_14_15_calendar/internal/storage/memory"
+	"github.com/adrianoff/golang-otus-homeworks/hw12_13_14_15_calendar/internal/app"
+	"github.com/adrianoff/golang-otus-homeworks/hw12_13_14_15_calendar/internal/logger"
+	internalhttp "github.com/adrianoff/golang-otus-homeworks/hw12_13_14_15_calendar/internal/server/http"
+	"github.com/adrianoff/golang-otus-homeworks/hw12_13_14_15_calendar/internal/storage"
 )
 
 var configFile string
 
 func init() {
-	flag.StringVar(&configFile, "config", "/etc/calendar/config.toml", "Path to configuration file")
+	flag.StringVar(&configFile, "config", "/etc/calendar/config.yaml", "Path to configuration file")
 }
 
 func main() {
@@ -28,13 +28,19 @@ func main() {
 		return
 	}
 
-	config := NewConfig()
-	logg := logger.New(config.Logger.Level)
+	// Create config instance
+	config := NewConfig(configFile)
 
-	storage := memorystorage.New()
+	// Create logger instance
+	logg := logger.New(config.Logger.Level, "Calendar: ")
+
+	// Create storage
+	storage := storage.New(config.Database.Storage, config.Database.ConnectString)
+
+	// Create app
 	calendar := app.New(logg, storage)
 
-	server := internalhttp.NewServer(logg, calendar)
+	server := internalhttp.NewServer(logg, calendar, config.HTTPServer.Address)
 
 	ctx, cancel := signal.NotifyContext(context.Background(),
 		syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)
